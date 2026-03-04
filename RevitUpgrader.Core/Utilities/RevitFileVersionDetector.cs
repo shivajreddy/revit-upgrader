@@ -10,8 +10,8 @@ public static class RevitFileVersionDetector
 {
     /// <summary>
     /// Detect the Revit version from a .rvt file
-    /// Revit files are OLE compound documents with version info in the header
-    /// The version is stored in UTF-16 format (appears as "B u i l d" or "F o r m a t" in notepad)
+    /// Based on solution: Search for 'Build' keyword encoded in UTF-16-LE
+    /// Revit files store version info as "Build: Autodesk Revit 2024 (Build 2024.0.0.0)"
     /// </summary>
     public static RevitVersion DetectVersion(string filePath)
     {
@@ -23,37 +23,48 @@ public static class RevitFileVersionDetector
 
         try
         {
-            // CRITICAL: Open file in READ-ONLY mode to prevent any corruption
-            // FileMode.Open = Open existing file (don't create/truncate)
-            // FileAccess.Read = Read-only access (cannot write)
-            // FileShare.ReadWrite = Allow other processes to read/write while we read
-            // This ensures the file is NEVER modified or locked exclusively
-            using var fs = new FileStream(
-                filePath, 
-                FileMode.Open,           // Open existing, don't create
-                FileAccess.Read,         // READ ONLY - cannot write
-                FileShare.ReadWrite);    // Allow others to use file
+            // CRITICAL: Open file in READ-ONLY mode ('rb' equivalent in Python)
+            // This prevents any corruption or modification
+            using var file = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             
-            // Read a larger chunk to ensure we capture the version info
-            // Version info can be anywhere in the first 64KB
-            var buffer = new byte[65536]; // 64KB
-            var bytesRead = fs.Read(buffer, 0, buffer.Length);
-
-            // Revit files store strings in UTF-16 (Unicode) format
-            // This is why you see "B u i l d" or "F o r m a t" when opening in notepad
-            var headerText = Encoding.Unicode.GetString(buffer, 0, bytesRead);
-
-            // Try to find version using UTF-16 decoded text
-            var version = ExtractVersionFromHeader(headerText);
-            
-            if (version == RevitVersion.Unknown)
+            // Read entire file data (or large enough chunk)
+            byte[] data;
+            if (file.Length > 1_000_000) // If file > 1MB, read first 1MB only
             {
-                // Fallback: Try ASCII encoding as well (for older formats)
-                headerText = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                version = ExtractVersionFromHeader(headerText);
+                data = new byte[1_000_000];
+                file.Read(data, 0, data.Length);
+            }
+            else
+            {
+                data = new byte[file.Length];
+                file.Read(data, 0, data.Length);
+            }
+
+            // Encode search string 'Build' in UTF-16-LE (Little Endian)
+            // This is the key - Revit stores text as UTF-16-LE
+            var searchBytes = Encoding.GetEncoding("UTF-16-LE").GetBytes("Build");
+            
+            // Find the index of 'Build' in the binary data
+            var buildIndex = FindBytes(data, searchBytes);
+            
+            if (buildIndex >= 0)
+            {
+                // Extract the build string section (next 40 bytes should have version)
+                // data[buildIndex:buildIndex+40] in Python
+                var endIndex = Math.Min(buildIndex + 80, data.Length); // 40 chars * 2 bytes = 80 bytes
+                var buildStringBytes = new byte[endIndex - buildIndex];
+                Array.Copy(data, buildIndex, buildStringBytes, 0, buildStringBytes.Length);
+                
+                // Decode as UTF-16-LE to get the actual string
+                var buildString = Encoding.GetEncoding("UTF-16-LE").GetString(buildStringBytes);
+                
+                // Extract year from build string (should contain something like "Build: Autodesk Revit 2024")
+                var year = ExtractYearFromText(buildString);
+                if (year.HasValue)
+                    return RevitVersionExtensions.FromYear(year.Value);
             }
             
-            return version;
+            return RevitVersion.Unknown;
         }
         catch
         {
@@ -62,61 +73,25 @@ public static class RevitFileVersionDetector
     }
 
     /// <summary>
-    /// Extract version from header text
-    /// Looks for "Build" or "Format" keywords followed by the year
+    /// Find a byte pattern in a byte array (like data.find() in Python)
     /// </summary>
-    private static RevitVersion ExtractVersionFromHeader(string headerText)
+    private static int FindBytes(byte[] haystack, byte[] needle)
     {
-        // Method 1: Look for "Build: " followed by version
-        // Pattern in file: "Build: Autodesk Revit 2024" or just "Build: 2024"
-        var buildIndex = headerText.IndexOf("Build", StringComparison.OrdinalIgnoreCase);
-        if (buildIndex >= 0)
+        for (int i = 0; i <= haystack.Length - needle.Length; i++)
         {
-            // Extract substring after "Build" (next 100 characters should contain the year)
-            var buildSection = headerText.Substring(buildIndex, Math.Min(100, headerText.Length - buildIndex));
-            var year = ExtractYearFromText(buildSection);
-            if (year.HasValue)
-                return RevitVersionExtensions.FromYear(year.Value);
-        }
-
-        // Method 2: Look for "Format: " followed by version
-        // Pattern in file: "Format: 2024"
-        var formatIndex = headerText.IndexOf("Format", StringComparison.OrdinalIgnoreCase);
-        if (formatIndex >= 0)
-        {
-            var formatSection = headerText.Substring(formatIndex, Math.Min(50, headerText.Length - formatIndex));
-            var year = ExtractYearFromText(formatSection);
-            if (year.HasValue)
-                return RevitVersionExtensions.FromYear(year.Value);
-        }
-
-        // Method 3: Look for "Autodesk Revit YYYY" patterns
-        var patterns = new[]
-        {
-            "Autodesk Revit 2027",
-            "Autodesk Revit 2026",
-            "Autodesk Revit 2025",
-            "Autodesk Revit 2024",
-            "Autodesk Revit 2023",
-            "Autodesk Revit 2022",
-            "Autodesk Revit 2021",
-            "Autodesk Revit 2020",
-            "Autodesk Revit 2019"
-        };
-
-        foreach (var pattern in patterns)
-        {
-            if (headerText.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+            bool found = true;
+            for (int j = 0; j < needle.Length; j++)
             {
-                var yearStr = pattern.Split(' ').Last();
-                if (int.TryParse(yearStr, out int year))
+                if (haystack[i + j] != needle[j])
                 {
-                    return RevitVersionExtensions.FromYear(year);
+                    found = false;
+                    break;
                 }
             }
+            if (found)
+                return i;
         }
-
-        return RevitVersion.Unknown;
+        return -1;
     }
 
     /// <summary>
