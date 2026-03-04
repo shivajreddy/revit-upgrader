@@ -5,8 +5,140 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RevitUpgrader"
         mc:Ignorable="d"
-        Title="Revit Upgrader 2024 → 2026" Height="600" Width="1000">
-    <Grid>
+        Title="Revit Upgrader" Height="700" Width="1200"
+        WindowStartupLocation="CenterScreen">
+    
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2C3E50" Padding="15" Margin="0,0,0,10">
+            <StackPanel>
+                <TextBlock Text="Revit File Upgrader" FontSize="24" FontWeight="Bold" Foreground="White"/>
+                <TextBlock Text="Batch upgrade Revit files with intelligent popup handling" 
+                           FontSize="12" Foreground="#BDC3C7" Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Configuration Section -->
+        <Border Grid.Row="1" BorderBrush="#BDC3C7" BorderThickness="1" Padding="15" Margin="0,0,0,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Version Selection -->
+                <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Source Version:" VerticalAlignment="Center" FontWeight="SemiBold" Width="120"/>
+                    <ComboBox x:Name="SourceVersionComboBox" Width="150" Margin="0,0,20,0"/>
+                    
+                    <TextBlock Text="→" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                    
+                    <TextBlock Text="Target Version:" VerticalAlignment="Center" FontWeight="SemiBold" Width="120"/>
+                    <ComboBox x:Name="TargetVersionComboBox" Width="150"/>
+                </StackPanel>
+
+                <!-- Root Folder Selection -->
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Root Folder:" VerticalAlignment="Center" FontWeight="SemiBold" Width="120"/>
+                <TextBox x:Name="RootFolderTextBox" Grid.Row="1" Grid.Column="1" Margin="0,0,10,0" 
+                         VerticalAlignment="Center" IsReadOnly="True"/>
+                <Button x:Name="BrowseFolderButton" Grid.Row="1" Grid.Column="2" Content="Browse..." 
+                        Width="100" Click="BrowseFolderButton_Click"/>
+
+                <!-- Action Buttons -->
+                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" 
+                            HorizontalAlignment="Right" Margin="0,15,0,0">
+                    <Button x:Name="DiscoverFilesButton" Content="Discover Files" Width="120" Height="35" 
+                            Margin="0,0,10,0" Click="DiscoverFilesButton_Click" IsEnabled="False"/>
+                    <Button x:Name="StartUpgradeButton" Content="Start Upgrade" Width="120" Height="35" 
+                            Background="#27AE60" Foreground="White" FontWeight="SemiBold"
+                            Click="StartUpgradeButton_Click" IsEnabled="False"/>
+                    <Button x:Name="CancelButton" Content="Cancel" Width="100" Height="35" 
+                            Margin="10,0,0,0" Click="CancelButton_Click" IsEnabled="False"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Files List -->
+        <Border Grid.Row="2" BorderBrush="#BDC3C7" BorderThickness="1" Margin="0,0,0,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Files Header -->
+                <Border Grid.Row="0" Background="#ECF0F1" Padding="10">
+                    <Grid>
+                        <TextBlock x:Name="FilesHeaderText" Text="Files (0)" FontWeight="SemiBold" 
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button x:Name="SelectAllButton" Content="Select All" Width="80" Height="25" 
+                                    Margin="0,0,5,0" Click="SelectAllButton_Click"/>
+                            <Button x:Name="DeselectAllButton" Content="Deselect All" Width="80" Height="25"
+                                    Click="DeselectAllButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Files DataGrid -->
+                <DataGrid x:Name="FilesDataGrid" Grid.Row="1" AutoGenerateColumns="False" 
+                          CanUserAddRows="False" IsReadOnly="False" SelectionMode="Extended">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Header="Include" Binding="{Binding IsIncluded, Mode=TwoWay}" Width="60"/>
+                        <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" Width="300"/>
+                        <DataGridTextColumn Header="Version" Binding="{Binding VersionDisplay}" Width="80"/>
+                        <DataGridTextColumn Header="Size" Binding="{Binding FileSizeDisplay}" Width="80"/>
+                        <DataGridTextColumn Header="Status" Binding="{Binding StatusDisplay}" Width="100"/>
+                        <DataGridTextColumn Header="Duration" Binding="{Binding DurationDisplay}" Width="80"/>
+                        <DataGridTextColumn Header="Path" Binding="{Binding FilePath}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- Progress Section -->
+        <Border Grid.Row="3" BorderBrush="#BDC3C7" BorderThickness="1" Padding="15" Margin="0,0,0,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock x:Name="ProgressText" Grid.Row="0" Text="Ready" Margin="0,0,0,10"/>
+                <ProgressBar x:Name="ProgressBar" Grid.Row="1" Height="25" Minimum="0" Maximum="100" Value="0"/>
+            </Grid>
+        </Border>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="4" Background="#34495E" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock x:Name="StatusText" Grid.Column="0" Text="Ready to start" Foreground="White" 
+                           VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock x:Name="StatsText" Foreground="#BDC3C7" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                    <Button x:Name="OpenLogsButton" Content="Open Logs" Width="100" Height="25"
+                            Click="OpenLogsButton_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

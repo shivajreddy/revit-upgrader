@@ -20,4 +20,10 @@
     <ProjectReference Include="..\RevitUpgrader.Core\RevitUpgrader.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Config\popup-handlers.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
