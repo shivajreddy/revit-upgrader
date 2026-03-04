@@ -6,6 +6,8 @@ namespace RevitUpgrader.Core.Models;
 public class UpgradeJob
 {
     public string RootFolder { get; set; } = string.Empty;
+    public RevitVersion SourceVersion { get; set; } = RevitVersion.Revit2024;
+    public RevitVersion TargetVersion { get; set; } = RevitVersion.Revit2026;
     public List<FileStatus> Files { get; set; } = new();
     public DateTime StartTime { get; set; }
     public DateTime? EndTime { get; set; }
@@ -27,11 +29,15 @@ public class UpgradeJob
 /// </summary>
 public class UpgradeJobSettings
 {
-    public string RevitExecutablePath { get; set; } = @"C:\Program Files\Autodesk\Revit 2026\Revit.exe";
     public string PopupHandlersConfigPath { get; set; } = "popup-handlers.json";
     public string LogDirectory { get; set; } = "Logs";
     public string ScreenshotDirectory { get; set; } = "Screenshots";
     public LogLevel LogLevel { get; set; } = LogLevel.Info;
+    
+    /// <summary>
+    /// Custom Revit executable path (if null, auto-detects based on target version)
+    /// </summary>
+    public string? CustomRevitExecutablePath { get; set; }
     
     /// <summary>
     /// Time to wait after opening file before checking for popups (milliseconds)

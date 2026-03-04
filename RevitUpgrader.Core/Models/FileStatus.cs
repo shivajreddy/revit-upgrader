@@ -8,6 +8,7 @@ public class FileStatus
     public string FilePath { get; set; } = string.Empty;
     public string FileName { get; set; } = string.Empty;
     public long FileSizeBytes { get; set; }
+    public RevitVersion DetectedVersion { get; set; } = RevitVersion.Unknown;
     public UpgradeStatus Status { get; set; } = UpgradeStatus.Pending;
     public DateTime? StartTime { get; set; }
     public DateTime? EndTime { get; set; }

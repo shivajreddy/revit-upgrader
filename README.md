@@ -1,10 +1,19 @@
 # Revit Upgrader
 
-A robust standalone application for batch upgrading Revit files from 2024 to 2026, with intelligent popup handling and comprehensive logging.
+A robust standalone application for batch upgrading Revit files between versions (e.g., 2024 → 2026), with intelligent popup handling and comprehensive logging.
 
 ## Overview
 
-This tool automates the tedious process of upgrading multiple Revit files while intelligently handling the various popup dialogs that Revit displays during upgrades. The application launches Revit, opens files one-by-one, and uses UI Automation (FlaUI) to detect and handle popups automatically.
+This tool automates the tedious process of upgrading multiple Revit files while intelligently handling the various popup dialogs that Revit displays during upgrades. 
+
+**Key Features:**
+- **Version Selection**: Choose source and target Revit versions (2019-2027)
+- **Smart File Detection**: Automatically detects and filters files by version
+- **Intelligent Popup Handling**: Configurable handlers for common Revit dialogs
+- **Comprehensive Logging**: Detailed logs with timing and screenshots
+- **Progress Tracking**: Real-time status updates during batch processing
+
+The application launches Revit, opens files one-by-one, and uses UI Automation (FlaUI) to detect and handle popups automatically.
 
 ## Architecture
 
@@ -77,6 +86,8 @@ RevitUpgrader/
 
 ### 2. Robust File Processing
 
+- **Version Detection**: Automatically detects Revit file versions from file headers
+- **Smart Filtering**: Only processes files matching the source version
 - **Recursive Discovery**: Find all `.rvt` files in a directory tree
 - **Backup Filtering**: Automatically exclude backup files (e.g., `.0001.rvt`)
 - **One-at-a-time Processing**: Process files sequentially for reliable error tracking
