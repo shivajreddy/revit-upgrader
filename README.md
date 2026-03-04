@@ -1,6 +1,10 @@
 # Revit Upgrader
 
-A robust standalone application for batch upgrading Revit files between versions (e.g., 2024 → 2026), with intelligent popup handling and comprehensive logging.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
+[![Platform](https://img.shields.io/badge/Platform-Windows-blue.svg)](https://www.microsoft.com/windows)
+
+A robust, **open-source** standalone application for batch upgrading Revit files between versions (e.g., 2024 → 2026), with intelligent popup handling and comprehensive logging.
 
 ## Overview
 
@@ -375,27 +379,62 @@ The application can control Revit using:
 
 ## Contributing
 
-To add new popup handlers:
+Contributions are welcome! Here's how you can help:
+
+### Adding New Popup Handlers
+
 1. Encounter the popup during testing
 2. Check the screenshot and log for popup properties
 3. Add a new handler entry to `popup-handlers.json`
 4. Test the handler on a sample file
-5. Share the handler configuration with the team
+5. Submit a pull request with your changes
+
+### Reporting Issues
+
+- Use GitHub Issues to report bugs
+- Include screenshots of unknown popups
+- Provide log files and error messages
+- Describe your Revit version and file types
+
+### Development
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## Future Enhancements
 
-- [ ] Support for Revit 2025, 2027, etc.
+Contributions welcome for these features:
+
+- [ ] Support for additional Revit versions
 - [ ] Machine learning for popup classification
 - [ ] Parallel file processing (multiple Revit instances)
 - [ ] Cloud-based logging and reporting
 - [ ] Rollback capability (keep backup copies)
 - [ ] Email notifications on completion
 - [ ] Integration with CI/CD pipelines
+- [ ] Cross-platform support (if Revit supports it)
 
 ## License
 
-Internal use only. Autodesk Revit is a registered trademark of Autodesk, Inc.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Contact
+**Note:** Autodesk Revit is a registered trademark of Autodesk, Inc. This project is not affiliated with or endorsed by Autodesk.
 
-For questions or issues, contact the development team.
+## Acknowledgments
+
+- Built with [FlaUI](https://github.com/FlaUI/FlaUI) for UI automation
+- Logging powered by [Serilog](https://serilog.net/)
+- Thanks to all contributors who help improve this tool
+
+## Support
+
+- **Issues:** [GitHub Issues](https://github.com/shivajreddy/revit-upgrader/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/shivajreddy/revit-upgrader/discussions)
+- **Pull Requests:** Always welcome!
+
+## Disclaimer
+
+This software is provided "as is", without warranty of any kind. Always backup your Revit files before upgrading. Test on sample files first before running on production data.
