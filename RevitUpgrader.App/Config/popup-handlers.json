@@ -1,0 +1,76 @@
+{
+  "popupHandlers": [
+    {
+      "id": "upgrade-confirmation",
+      "enabled": true,
+      "priority": 1,
+      "matchers": {
+        "windowTitle": "Autodesk Revit 2026",
+        "messageContains": "upgrade",
+        "buttons": ["OK", "Cancel"]
+      },
+      "actions": [
+        {
+          "type": "Click",
+          "target": "OK"
+        },
+        {
+          "type": "Wait",
+          "milliseconds": 500
+        }
+      ],
+      "captureScreenshot": true
+    },
+    {
+      "id": "save-reminder",
+      "enabled": true,
+      "priority": 2,
+      "matchers": {
+        "messageContains": "would you like to save"
+      },
+      "actions": [
+        {
+          "type": "Click",
+          "target": "Yes"
+        }
+      ],
+      "captureScreenshot": true
+    },
+    {
+      "id": "missing-links-warning",
+      "enabled": true,
+      "priority": 3,
+      "matchers": {
+        "messageContains": "linked files",
+        "windowTitleRegex": ".*Warning.*"
+      },
+      "actions": [
+        {
+          "type": "Click",
+          "target": "Close"
+        }
+      ],
+      "captureScreenshot": true
+    },
+    {
+      "id": "worksharing-warning",
+      "enabled": true,
+      "priority": 4,
+      "matchers": {
+        "messageContains": "worksharing"
+      },
+      "actions": [
+        {
+          "type": "Click",
+          "target": "OK"
+        }
+      ],
+      "captureScreenshot": true
+    }
+  ],
+  "unknownPopupBehavior": {
+    "action": "Skip",
+    "captureScreenshot": true,
+    "logDetails": true
+  }
+}
