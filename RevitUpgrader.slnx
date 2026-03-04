@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="RevitUpgrader.App/RevitUpgrader.App.csproj" />
+  <Project Path="RevitUpgrader.Core/RevitUpgrader.Core.csproj" />
+</Solution>
