@@ -154,3 +154,14 @@ $RECYCLE.BIN/
 *.0007.rvt
 *.0008.rvt
 *.0009.rvt
+
+## Test Data Directory
+# Exclude all Revit files in test-data folder
+test-data/**/*.rvt
+test-data/**/*.rfa
+test-data/**/*.rte
+test-data/**/*.rft
+
+# But keep the README and folder structure
+!test-data/README.md
+!test-data/**/README.md
