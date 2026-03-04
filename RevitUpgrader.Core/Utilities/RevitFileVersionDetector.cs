@@ -27,22 +27,16 @@ public static class RevitFileVersionDetector
             // This prevents any corruption or modification
             using var file = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             
-            // Read entire file data (or large enough chunk)
-            byte[] data;
-            if (file.Length > 1_000_000) // If file > 1MB, read first 1MB only
-            {
-                data = new byte[1_000_000];
-                file.Read(data, 0, data.Length);
-            }
-            else
-            {
-                data = new byte[file.Length];
-                file.Read(data, 0, data.Length);
-            }
+            // Read entire file data
+            // Revit files can be large, but we need to search the whole file
+            // Version info could be anywhere, not just at the beginning
+            byte[] data = new byte[file.Length];
+            file.Read(data, 0, data.Length);
 
             // Encode search string 'Build' in UTF-16-LE (Little Endian)
+            // In .NET, UTF-16 Little Endian is accessed via Encoding.Unicode
             // This is the key - Revit stores text as UTF-16-LE
-            var searchBytes = Encoding.GetEncoding("UTF-16-LE").GetBytes("Build");
+            var searchBytes = Encoding.Unicode.GetBytes("Build");
             
             // Find the index of 'Build' in the binary data
             var buildIndex = FindBytes(data, searchBytes);
@@ -56,7 +50,7 @@ public static class RevitFileVersionDetector
                 Array.Copy(data, buildIndex, buildStringBytes, 0, buildStringBytes.Length);
                 
                 // Decode as UTF-16-LE to get the actual string
-                var buildString = Encoding.GetEncoding("UTF-16-LE").GetString(buildStringBytes);
+                var buildString = Encoding.Unicode.GetString(buildStringBytes);
                 
                 // Extract year from build string (should contain something like "Build: Autodesk Revit 2024")
                 var year = ExtractYearFromText(buildString);
