@@ -244,16 +244,42 @@ Handlers are matched in priority order (lower number = higher priority). The fir
 
 ## Usage
 
+### Quick Start (Testing)
+
+The project includes a `test-data/` folder for easy testing:
+
+1. **Copy your Revit files** to the appropriate version folder:
+   ```
+   test-data/
+   ├── sample-2024-files/    # Place Revit 2024 files here
+   ├── sample-2023-files/    # Place Revit 2023 files here
+   └── sample-2025-files/    # Place Revit 2025 files here
+   ```
+
+2. **Launch the application**:
+   ```bash
+   dotnet run --project RevitUpgrader.App
+   ```
+
+3. **In the UI**:
+   - Select source version (e.g., 2024) and target version (e.g., 2026)
+   - Browse to `test-data/sample-2024-files/`
+   - Click "Discover Files"
+   - Review files and click "Start Upgrade"
+
+**Note:** The `test-data/` folder is excluded from git, so your Revit files won't be tracked.
+
 ### Basic Usage
 
 1. Launch `RevitUpgrader.exe`
-2. Click "Select Folder" and choose the root folder containing `.rvt` files
-3. Review the list of discovered files
-4. (Optional) Exclude specific files from upgrade
-5. (Optional) Adjust settings (log level, Revit path)
-6. Click "Start Upgrade"
-7. Watch progress in real-time
-8. Review log and screenshots after completion
+2. Select **Source Version** and **Target Version** from dropdowns
+3. Click "Browse..." and choose the root folder containing `.rvt` files
+4. Click "Discover Files" to scan for matching files
+5. Review the list of discovered files
+6. (Optional) Exclude specific files by unchecking them
+7. Click "Start Upgrade"
+8. Watch progress in real-time
+9. Review log and screenshots after completion
 
 ### Advanced Configuration
 
